@@ -5,7 +5,7 @@ import { GeistMono } from 'geist/font/mono';
 
 import OCConnectWrapper from '~/components/OCConnectWrapper';
 import { ThemeProvider } from '~/components/theme-provider';
-import { HeroHeader } from '~/components/hero5-header';
+import { HeroHeader } from '~/components/header';
 import Footer from '~/components/footer';
 
 import '../styles/output.css';

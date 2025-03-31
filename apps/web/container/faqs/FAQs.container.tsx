@@ -1,4 +1,4 @@
-export default function FAQs() {
+const FAQsContainer = () => {
   return (
     <section className="scroll-py-16 py-16 md:scroll-py-32 md:py-32">
       <div className="mx-auto max-w-5xl px-6">
@@ -9,62 +9,66 @@ export default function FAQs() {
               <br className="hidden lg:block" />
               Questions
             </h2>
-            <p>Accusantium quisquam. Illo, omnis?</p>
+            <p>Common questions about our edu-financing platform</p>
           </div>
 
           <div className="divide-y divide-dashed sm:mx-auto sm:max-w-lg lg:mx-0">
             <div className="pb-6">
-              <h3 className="font-medium">What is the refund policy?</h3>
+              <h3 className="font-medium">How does EduChain funding work?</h3>
               <p className="text-muted-foreground mt-4">
-                We offer a 30-day money back guarantee. If you are not satisfied
-                with our product, you can request a refund within 30 days of
-                your purchase.
+                EduChain connects students directly with investors through our
+                blockchain platform. We offer zero-interest funding with
+                transparent terms and conditions.
               </p>
 
               <ol className="list-outside list-decimal space-y-2 pl-4">
                 <li className="text-muted-foreground mt-4">
-                  To request a refund, please contact our support team with your
-                  order number and reason for the refund.
+                  Submit your academic credentials and funding requirements
                 </li>
                 <li className="text-muted-foreground mt-4">
-                  Refunds will be processed within 3-5 business days.
+                  Get matched with potential investors
                 </li>
                 <li className="text-muted-foreground mt-4">
-                  Please note that refunds are only available for new customers
-                  and are limited to one per customer.
+                  Receive funding directly through our secure blockchain
+                  platform
                 </li>
               </ol>
             </div>
             <div className="py-6">
-              <h3 className="font-medium">How do I cancel my subscription?</h3>
+              <h3 className="font-medium">
+                What are the eligibility requirements?
+              </h3>
               <p className="text-muted-foreground mt-4">
-                You can cancel your subscription at any time by logging into
-                your account and clicking on the cancel button.
+                To be eligible for funding, you must be enrolled or accepted
+                into an accredited educational institution and meet our basic
+                verification requirements.
               </p>
             </div>
             <div className="py-6">
-              <h3 className="font-medium">Can I upgrade my plan?</h3>
+              <h3 className="font-medium">How is repayment structured?</h3>
               <p className="text-muted-foreground my-4">
-                Yes, you can upgrade your plan at any time by logging into your
-                account and selecting the plan you want to upgrade to.
+                Our repayment system is flexible and based on your future income
+                after graduation.
               </p>
               <ul className="list-outside list-disc space-y-2 pl-4">
                 <li className="text-muted-foreground">
-                  You will be charged the difference in price between your
-                  current plan and the plan you are upgrading to.
+                  Zero interest on the principal amount
                 </li>
                 <li className="text-muted-foreground">
-                  Your new plan will take effect immediately and you will be
-                  billed at the new rate on your next billing cycle.
+                  Income-based repayment plans start after graduation
+                </li>
+                <li className="text-muted-foreground">
+                  All terms are transparently recorded on the blockchain
                 </li>
               </ul>
             </div>
             <div className="py-6">
-              <h3 className="font-medium">Do you offer phone support?</h3>
+              <h3 className="font-medium">How is my data protected?</h3>
               <p className="text-muted-foreground mt-4">
-                We do not offer phone support at this time. However, you can
-                contact us via email or live chat for any questions or concerns
-                you may have.
+                Your personal and financial information is secured using
+                blockchain technology. We use advanced encryption and
+                decentralized storage to ensure your data remains private and
+                tamper-proof.
               </p>
             </div>
           </div>
@@ -72,4 +76,6 @@ export default function FAQs() {
       </div>
     </section>
   );
-}
+};
+
+export default FAQsContainer;

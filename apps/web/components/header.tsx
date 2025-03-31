@@ -9,10 +9,9 @@ import { useOCAuth } from '@opencampus/ocid-connect-js';
 import { cn } from '~/lib/utils';
 
 const menuItems = [
-  { name: 'Features', href: '#link' },
-  { name: 'Solution', href: '#link' },
-  { name: 'Pricing', href: '#link' },
-  { name: 'About', href: '#link' },
+  { name: 'Features', href: '#features' },
+  { name: 'Contact', href: '/contact' },
+  { name: 'About', href: '/about' },
 ];
 
 export const HeroHeader = () => {
@@ -116,7 +115,10 @@ export const HeroHeader = () => {
                       asChild
                       // variant="outline"
                       size="sm"
-                      className={cn(isScrolled && 'lg:hidden')}
+                      className={cn(
+                        'cursor-pointer',
+                        isScrolled && 'lg:hidden',
+                      )}
                     >
                       <Link href="/dashboard">
                         <span>Dashboard</span>
@@ -126,7 +128,10 @@ export const HeroHeader = () => {
                       asChild
                       variant="outline"
                       size="sm"
-                      className={cn(isScrolled && 'lg:hidden')}
+                      className={cn(
+                        'cursor-pointer',
+                        isScrolled && 'lg:hidden',
+                      )}
                       onClick={handleLogout}
                     >
                       <span>Logout</span>
@@ -136,7 +141,7 @@ export const HeroHeader = () => {
                   <Button
                     asChild
                     size="sm"
-                    className={cn(isScrolled && 'lg:hidden')}
+                    className={cn('cursor-pointer', isScrolled && 'lg:hidden')}
                     onClick={handleLogin}
                   >
                     <span>Login</span>

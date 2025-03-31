@@ -3,28 +3,24 @@ import Link from 'next/link';
 
 const links = [
   {
-    title: 'Features',
-    href: '#',
+    title: 'FAQ',
+    href: '/faq',
   },
   {
-    title: 'Solution',
-    href: '#',
+    title: 'Terms of Service',
+    href: '/term-of-service',
   },
   {
-    title: 'Customers',
-    href: '#',
-  },
-  {
-    title: 'Pricing',
-    href: '#',
-  },
-  {
-    title: 'Help',
-    href: '#',
+    title: 'Privacy Policyy',
+    href: '/privacy-policy',
   },
   {
     title: 'About',
-    href: '#',
+    href: '/about',
+  },
+  {
+    title: 'Contact',
+    href: '/contact',
   },
 ];
 
@@ -176,7 +172,8 @@ export default function FooterSection() {
         </div>
         <span className="text-muted-foreground block text-center text-sm">
           {' '}
-          © {new Date().getFullYear()} Tailus UI, All rights reserved
+          © {new Date().getFullYear()} LuminaFi. Empowering education through
+          blockchain.
         </span>
       </div>
     </footer>
