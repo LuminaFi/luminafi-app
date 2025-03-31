@@ -16,7 +16,7 @@ async function createUser(req: NextApiRequest, res: NextApiResponse) {
   const user: User = { userId, userName, walletAddress, fullName, role };
   const lender: Lender = { status: "proposed", amount, institutionName, transcriptUrl: transcript, essay };
 
-  const newUser = await userService.createUser(user, lender);
+  const newUser = await userService.createLender(user, lender);
 
   return res.status(201).json(newUser);
 }
