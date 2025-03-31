@@ -10,12 +10,18 @@ async function getAllUsers(req: NextApiRequest, res: NextApiResponse) {
 
 // maybe need transaction?
 async function createUser(req: NextApiRequest, res: NextApiResponse) {
-  const { userId, userName, walletAddress, fullName, role, roleId } = req.body;
+  const { userId, userName, walletAddress, fullName, role, credentials, institutionName, amount } = req.body;
 
-  const newUserRef = await db.collection("user").add({ userId, userName, walletAddress, fullName, role, roleId });
-  const newUser = { id: newUserRef.id, userId, userName, walletAddress, fullName, role, roleId };
+  const newCredential = await db.collection("credential").add({ type: credentials[0].type, url: credentials[0].url });
+  
+  const newLoan = await db.collection("loan").add({ status: "proposed", amount });
 
-  return res.status(201).json(newUser);
+  const newLender = await db.collection("lender").add({ loanId: newLoan.id, credentialIds: [newCredential.id], institutionName });
+
+  const userRef = await db.collection("user").add({ userId, userName, walletAddress, fullName, role, roleId: newLender.id });
+  const user = { id: userRef.id, userId, userName, walletAddress, fullName, role, roleId: newLender.id };
+
+  return res.status(201).json(user);
 }
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
