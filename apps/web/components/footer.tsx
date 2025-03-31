@@ -1,5 +1,6 @@
 import { Logo } from '~/components/logo';
 import Link from 'next/link';
+import { FC } from 'react';
 
 const links = [
   {
@@ -23,8 +24,7 @@ const links = [
     href: '/contact',
   },
 ];
-
-export default function FooterSection() {
+export const FooterComponent: FC = () => {
   return (
     <footer className="py-16 md:py-32">
       <div className="mx-auto max-w-5xl px-6">
@@ -178,4 +178,4 @@ export default function FooterSection() {
       </div>
     </footer>
   );
-}
+};

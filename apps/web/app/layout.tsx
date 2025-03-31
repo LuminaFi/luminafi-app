@@ -6,7 +6,7 @@ import { GeistMono } from 'geist/font/mono';
 import OCConnectWrapper from '~/components/OCConnectWrapper';
 import { ThemeProvider } from '~/components/theme-provider';
 import { HeroHeader } from '~/components/header';
-import Footer from '~/components/footer';
+import { FooterComponent as Footer } from '~/components/footer';
 
 import '../styles/output.css';
 
@@ -16,11 +16,12 @@ export const metadata: Metadata = {
 };
 
 const opts = {
-  redirectUri: 'http://localhost:3001/redirect', // Adjust this URL
-  // referralCode: 'PARTNER6', // Assign partner code
+  redirectUri: 'http://localhost:3001/redirect',
 };
 
-export default function RootLayout({ children }: Readonly<PropsWithChildren>) {
+export default function RootLayout({
+  children,
+}: Readonly<PropsWithChildren>): React.JSX.Element {
   return (
     <html lang="en">
       <body
