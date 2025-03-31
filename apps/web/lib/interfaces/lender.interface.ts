@@ -1,7 +1,9 @@
 export interface Lender {
   id?: string,
-  loanId: string,
-  credentialIds: string[],
   score?: number,
   institutionName: string,
+  status: "proposed" | "accepted" | "rejected",
+  amount: number,
+  transcriptUrl: string,
+  essay: string
 }

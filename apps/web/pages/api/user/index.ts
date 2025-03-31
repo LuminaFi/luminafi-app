@@ -1,27 +1,24 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { db } from "~/lib/firebaseAdmin";
+import { Lender } from "~/lib/interfaces/lender.interface";
+import { User } from "~/lib/interfaces/user.interface";
+import userService from "~/services/user.service";
 
 async function getAllUsers(req: NextApiRequest, res: NextApiResponse) {
-  const snapshot = await db.collection("user").get();
-  const users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  const usersWithRoleData = await userService.fetchAllUsers();
   
-  return res.status(200).json(users);
+  return res.status(200).json(usersWithRoleData);
 }
 
-// maybe need transaction?
 async function createUser(req: NextApiRequest, res: NextApiResponse) {
-  const { userId, userName, walletAddress, fullName, role, credentials, institutionName, amount } = req.body;
+  const { userId, userName, walletAddress, fullName, role, transcript, essay, institutionName, amount } = req.body;
 
-  const newCredential = await db.collection("credential").add({ type: credentials[0].type, url: credentials[0].url });
-  
-  const newLoan = await db.collection("loan").add({ status: "proposed", amount });
+  const user: User = { userId, userName, walletAddress, fullName, role };
+  const lender: Lender = { status: "proposed", amount, institutionName, transcriptUrl: transcript, essay };
 
-  const newLender = await db.collection("lender").add({ loanId: newLoan.id, credentialIds: [newCredential.id], institutionName });
+  const newUser = await userService.createUser(user, lender);
 
-  const userRef = await db.collection("user").add({ userId, userName, walletAddress, fullName, role, roleId: newLender.id });
-  const user = { id: userRef.id, userId, userName, walletAddress, fullName, role, roleId: newLender.id };
-
-  return res.status(201).json(user);
+  return res.status(201).json(newUser);
 }
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {

@@ -5,5 +5,5 @@ export interface User {
   walletAddress: string, 
   fullName: string, 
   role: "lender" | "investor", 
-  roleId: "string",
+  roleId?: "string",
 }
