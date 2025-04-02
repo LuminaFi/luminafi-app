@@ -19,12 +19,12 @@ async function deleteUser(req: NextApiRequest, res: NextApiResponse) {
 
 async function updateUser(req: NextApiRequest, res: NextApiResponse) {
   const { id } = req.query;
-  const { userId, userName, walletAddress, fullName, role, transcript, essay, institutionName, amount, status } = req.body;
+  const { userId, userName, walletAddress, fullName, role, transcriptUrl, essayUrl, institutionName, amount, status } = req.body;
 
   const user = { userId, userName, walletAddress, fullName, role };
-  const lender = { status, amount, institutionName, transcriptUrl: transcript, essay };
+  const lender = { status, amount, institutionName, transcriptUrl, essayUrl };
 
-  const updatedUser = await userService.updateLender(id as string, user, lender);
+  const updatedUser = await userService.updateUser(id as string, user, lender);
 
   return res.status(200).json(updatedUser);
 }
@@ -40,7 +40,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         return updateUser(req, res);
     }
   
-    res.setHeader("Allow", ["GET", "POST"]);
+    res.setHeader("Allow", ["GET", "DELETE", "PUT"]);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   } catch (error) {
     return res.status(500).json({ error: "Internal Server Error" });

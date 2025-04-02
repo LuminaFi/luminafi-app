@@ -1,19 +1,23 @@
-import { db } from "~/lib/firebaseAdmin";
+import { db } from "~/services/firebase.service";
 import { Lender } from "~/lib/interfaces/lender.interface";
 import { User } from "~/lib/interfaces/user.interface";
 import _ from "lodash";
+import lenderService from "./lender.service";
 
 class UserService {
-  async createLender(user: User, lender: Lender) { 
+  async createUser(user: User, lender: Lender) { 
     await this.checkExistingUser(user);
 
-    const newLender = await db.collection("lender").add(lender);
+    let roleSnapshot;
+    if (user.role === "lender") {
+      roleSnapshot = await db.collection("lender").add(lender);
+    }
   
-    const newUser = await db.collection("user").add({ ...user, roleId: newLender.id });
+    const newUser = await db.collection("user").add({ ...user, roleId: roleSnapshot?.id });
     return newUser.id;
   }
 
-  async updateLender(id: string, user: User, lender: Lender) {
+  async updateUser(id: string, user: User, lender: Lender) {
     const userSnapshot = await db.collection("user").doc(id).get();
     if (!userSnapshot.exists) { 
       throw new Error("User not found");
@@ -21,18 +25,22 @@ class UserService {
     const userData = { id: userSnapshot.id, ...userSnapshot.data() as User };
     await this.checkExistingUser(user, userData.id);
 
-    const lenderSnapshot = await db.collection("lender").doc(userData.roleId as string).get();
-    if (!lenderSnapshot.exists) {
-      throw new Error("Lender not found");
-    }
-    const lenderData = { id: lenderSnapshot.id, ...lenderSnapshot.data() as Lender };
+    let roleData;
+    if (userData.role === "lender") {
+      const lenderData = await lenderService.fetchLenderById(userData.roleId as string);
+      if (!lenderData) {
+        throw new Error("Lender not found");
+      }
 
-    const updatedUser = { ...userData, ...user };
-    const updatedLender = { ...lenderData, ...lender };
-    await db.collection("user").doc(id).set(updatedUser);
-    await db.collection("lender").doc(userData.roleId as string).set(updatedLender);
+      roleData = { ...lenderData, ...lender };
+      await db.collection("lender").doc(userData.roleId as string).set(roleData);
+    }
     
-    return { ...updatedUser, roleData: updatedLender };
+    const updatedUser = { ...userData, ...user };
+    await db.collection("user").doc(id).set(updatedUser);
+    
+    
+    return { ...updatedUser, roleData };
   }
   
   async fetchAllUsers() {
@@ -58,24 +66,33 @@ class UserService {
     }
     const user = { id: userSnapshot.id, ...userSnapshot.data() as User };
   
-    const lenderSnapshot = await db.collection("lender").doc(user.roleId as string).get();
-    const lender = { id: lenderSnapshot.id, ...lenderSnapshot.data() as Lender };
+    let roleData;
+    if (user.role === "lender") {
+      roleData = await lenderService.fetchLenderById(user.roleId as string);
+    }
   
     return {
       ...user,
-      roleData: lender,
+      roleData,
     };
   }
 
   async deleteUser(id: string) {
-    const userSnapshot = await db.collection("user").doc(id).get();
+    const userRef = db.collection("user").doc(id);
+    const userSnapshot = await userRef.get();
     if (!userSnapshot.exists) {
       throw new Error("User not found");
     }
     const user = { id: userSnapshot.id, ...userSnapshot.data() as User };
+
+    if (user.role === "lender") {
+      const lender = await lenderService.fetchLenderById(user.roleId as string);
+      if (lender) {
+        await db.collection("lender").doc(user.roleId as string).delete();
+      }
+    }
   
-    await db.collection("user").doc(id).delete();
-    await db.collection("lender").doc(user.roleId as string).delete();
+    await userRef.delete();
   }
 
   private async checkExistingUser(user: User, userId?: string) {

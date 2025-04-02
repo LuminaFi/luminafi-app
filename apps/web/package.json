@@ -19,6 +19,7 @@
     "@radix-ui/react-separator": "^1.1.2",
     "@radix-ui/react-slot": "^1.1.2",
     "@repo/ui": "workspace:*",
+    "@supabase/supabase-js": "^2.49.4",
     "@tailwindcss/postcss": "^4.0.17",
     "autoprefixer": "^10.4.21",
     "class-variance-authority": "^0.7.1",

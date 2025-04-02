@@ -4,6 +4,6 @@ export interface Lender {
   institutionName: string,
   status: "proposed" | "accepted" | "rejected",
   amount: number,
-  transcriptUrl: string,
-  essay: string
+  transcriptUrl?: string,
+  essayUrl?: string
 }

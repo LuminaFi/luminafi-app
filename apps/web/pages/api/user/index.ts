@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { db } from "~/lib/firebaseAdmin";
 import { Lender } from "~/lib/interfaces/lender.interface";
 import { User } from "~/lib/interfaces/user.interface";
 import userService from "~/services/user.service";
@@ -11,12 +10,12 @@ async function getAllUsers(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function createUser(req: NextApiRequest, res: NextApiResponse) {
-  const { userId, userName, walletAddress, fullName, role, transcript, essay, institutionName, amount } = req.body;
+  const { userId, userName, walletAddress, fullName, role, transcriptUrl, essayUrl, institutionName, amount } = req.body;
 
   const user: User = { userId, userName, walletAddress, fullName, role };
-  const lender: Lender = { status: "proposed", amount, institutionName, transcriptUrl: transcript, essay };
+  const lender: Lender = { status: "proposed", amount, institutionName, transcriptUrl, essayUrl };
 
-  const newUser = await userService.createLender(user, lender);
+  const newUser = await userService.createUser(user, lender);
 
   return res.status(201).json(newUser);
 }
