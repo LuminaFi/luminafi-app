@@ -1,3 +1,3 @@
-import Apply from './Apply.container';
+import ApplyContainer from './Apply.container';
 
-export default Apply;
+export default ApplyContainer;

@@ -1,9 +1,9 @@
 import { Button } from '~/components/ui/button';
-import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { AnimatedGroup } from '~/components/motion-primitives/animated-group';
 import { TextEffect } from '~/components/motion-primitives/text-effect';
+import { useEffect, useState } from 'react';
 
 const transitionVariants = {
   item: {
@@ -26,6 +26,16 @@ const transitionVariants = {
 };
 
 const Home = () => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
+
   return (
     <main className="overflow-hidden">
       <div
@@ -82,8 +92,15 @@ const Home = () => {
                 as="h1"
                 className="mt-8 text-balance text-6xl md:text-7xl lg:mt-16 xl:text-[5.25rem]"
               >
-                Innovative Blockchain Solutions for Student Financial
-                Empowerment
+                Decentralizing Education Finance
+              </TextEffect>
+              <TextEffect
+                preset="fade-in-blur"
+                speedSegment={0.3}
+                as="h1"
+                className="text-balance text-6xl md:text-7xl xl:text-[5.25rem]"
+              >
+                Student Empowerment Through Blockchain
               </TextEffect>
               <TextEffect
                 per="line"
@@ -93,9 +110,9 @@ const Home = () => {
                 as="p"
                 className="mx-auto mt-8 max-w-2xl text-balance text-lg"
               >
-                Empowering Students Through Transparent, Accessible, and
-                Community-Driven Decentralized Financing Solutions That
-                Transform the Future of Educational Funding
+                Connecting investors directly with students through a
+                zero-interest, transparent funding platform built on EduChain
+                Layer 3.
               </TextEffect>
 
               <AnimatedGroup
@@ -178,6 +195,7 @@ const Home = () => {
                 alt="Nvidia Logo"
                 height="20"
                 width="20"
+                priority
               />
             </div>
 
@@ -188,6 +206,7 @@ const Home = () => {
                 alt="Column Logo"
                 height="16"
                 width="16"
+                priority
               />
             </div>
             <div className="flex">
@@ -197,6 +216,7 @@ const Home = () => {
                 alt="GitHub Logo"
                 height="16"
                 width="16"
+                priority
               />
             </div>
             <div className="flex">
@@ -206,6 +226,7 @@ const Home = () => {
                 alt="Nike Logo"
                 height="20"
                 width="20"
+                priority
               />
             </div>
             <div className="flex">
@@ -215,6 +236,7 @@ const Home = () => {
                 alt="Lemon Squeezy Logo"
                 height="20"
                 width="20"
+                priority
               />
             </div>
             <div className="flex">
@@ -224,6 +246,7 @@ const Home = () => {
                 alt="Laravel Logo"
                 height="16"
                 width="16"
+                priority
               />
             </div>
             <div className="flex">
@@ -233,6 +256,7 @@ const Home = () => {
                 alt="Lilly Logo"
                 height="28"
                 width="28"
+                priority
               />
             </div>
 
@@ -243,6 +267,7 @@ const Home = () => {
                 alt="OpenAI Logo"
                 height="24"
                 width="24"
+                priority
               />
             </div>
           </div>

@@ -1,3 +1,3 @@
-import Redirect from './Redirect.container';
+import RedirectContainer from './Redirect.container';
 
-export default Redirect;
+export default RedirectContainer;
