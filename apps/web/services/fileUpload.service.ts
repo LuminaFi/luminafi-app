@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_PROJECT_URL = process.env.SUPABASE_PROJECT_URL as string;
-const SUPABASE_API_KEY = process.env.SUPABASE_API_KEY as string;
-const SUPABASE_BUCKET_NAME = process.env.SUPABASE_BUCKET_NAME as string;
+const SUPABASE_PROJECT_URL = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_URL as string;
+const SUPABASE_API_KEY = process.env.NEXT_PUBLIC_SUPABASE_API_KEY as string;
+const SUPABASE_BUCKET_NAME = process.env.NEXT_PUBLIC_SUPABASE_BUCKET_NAME as string;
 
 class FileUploadService {
   private client: any;
