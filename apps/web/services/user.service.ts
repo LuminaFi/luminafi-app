@@ -95,6 +95,29 @@ class UserService {
     await userRef.delete();
   }
 
+  async updateCredential(id: string, transcriptUrl: string, essayUrl: string) {
+    const userRef = db.collection("user").doc(id);
+    const userSnapshot = await userRef.get();
+    if (!userSnapshot.exists) {
+      throw new Error("User not found");
+    }
+    const user = { id: userSnapshot.id, ...userSnapshot.data() as User };
+
+    if (user.role !== "lender") {
+      throw new Error("User is not a lender");
+    }
+
+    const lenderRef = db.collection("lender").doc(user.roleId as string);
+    const lenderSnapshot = await lenderRef.get();
+    if (!lenderSnapshot.exists) {
+      throw new Error("Lender not found");
+    }
+    const lender = { id: lenderSnapshot.id, ...lenderSnapshot.data() as Lender };
+    const updatedLender = { ...lender, transcriptUrl, essayUrl };
+    await lenderRef.set(updatedLender);
+    return { ...user, ...updatedLender };
+  }
+
   private async checkExistingUser(user: User, userId?: string) {
     const userRef = db.collection("user");
     const queries = [

@@ -29,6 +29,13 @@ async function updateUser(req: NextApiRequest, res: NextApiResponse) {
   return res.status(200).json(updatedUser);
 }
 
+async function updateCredential(req: NextApiRequest, res: NextApiResponse) {
+  const { id } = req.query;
+  const { transcriptUrl, essayUrl } = req.body;
+  const updatedUser = await userService.updateCredential(id as string, transcriptUrl, essayUrl);
+  return res.status(200).json(updatedUser); 
+}
+
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     switch(req.method) {
@@ -38,6 +45,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
         return deleteUser(req, res);
       case "PUT":
         return updateUser(req, res);
+      case "PATCH":
+        return updateCredential(req, res);
     }
   
     res.setHeader("Allow", ["GET", "DELETE", "PUT"]);
