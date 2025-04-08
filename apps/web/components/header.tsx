@@ -111,7 +111,7 @@ export const HeroHeader = () => {
                 {authState?.isAuthenticated ? (
                   <div className="flex flex-row justify-between items-center gap-3">
                     <p>Hi, {ocAuth?.OCId}</p>
-                    <Button
+                    {/* <Button
                       asChild
                       // variant="outline"
                       size="sm"
@@ -123,7 +123,7 @@ export const HeroHeader = () => {
                       <Link href="/dashboard">
                         <span>Dashboard</span>
                       </Link>
-                    </Button>
+                    </Button> */}
                     <Button
                       asChild
                       variant="outline"

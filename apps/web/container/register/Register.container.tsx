@@ -6,6 +6,7 @@ import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useOCAuth } from '@opencampus/ocid-connect-js';
 import {
   Select,
   SelectContent,
@@ -13,14 +14,90 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select';
+import { useRouter } from 'next/navigation';
+
+interface FormData {
+  fullname: string;
+  institutionName?: string;
+  companyName?: string;
+  incomeSource?: string;
+}
 
 const RegisterContainer = () => {
+  const router = useRouter();
+  const { ocAuth } = useOCAuth();
+
   const [activeTab, setActiveTab] = useState<'student' | 'investor'>('student');
+  const [formData, setFormData] = useState<FormData>({
+    fullname: '',
+    institutionName: '',
+    companyName: '',
+    incomeSource: '',
+  });
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement> | string,
+    field: keyof FormData,
+  ) => {
+    const value = typeof e === 'string' ? e : e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(activeTab === 'student' ? {  
+          userId: ocAuth.OCId,
+          userName: ocAuth.OCId,
+          walletAddress: ocAuth.ethAddress,
+          fullName: formData.fullname, 
+          role: activeTab, 
+          transcript: null, 
+          essay: '', 
+          institutionName: '', 
+          amount: 0,
+        } : {
+          userId: ocAuth.OCId,
+          userName: ocAuth.OCId,
+          walletAddress: ocAuth.ethAddress,          
+          fullName: formData.fullname,
+          companyName: formData.companyName,
+          incomeSource: formData.incomeSource,
+          role: activeTab,
+          transcript: null, 
+          essay: '', 
+          institutionName: '', 
+          amount: 0,          
+        }),
+      });
+
+      if (response.ok) {
+        router.push('/upload-credentials');
+      } else {
+        throw new Error('Registration failed');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <section className="flex bg-zinc-50 px-4 pt-16 md:pt-32 dark:bg-transparent">
       <form
-        action=""
+        onSubmit={handleSubmit}
         className="bg-muted m-auto h-fit w-full max-w-1/2 overflow-hidden rounded-[calc(var(--radius)+.125rem)] shadow-md shadow-zinc-950/5 dark:[--color-muted:var(--color-zinc-900)]"
       >
         <div className="bg-card -m-px rounded-[calc(var(--radius)+.125rem)] border py-10 px-36 min-w-[500px] space-y-12">
@@ -67,7 +144,14 @@ const RegisterContainer = () => {
               <Label htmlFor="fullname" className="block text-sm">
                 Fullname
               </Label>
-              <Input type="text" required name="fullname" id="fullname" />
+              <Input
+                type="text"
+                required
+                name="fullname"
+                id="fullname"
+                value={formData.fullname}
+                onChange={(e) => handleInputChange(e, 'fullname')}
+              />
             </div>
 
             {activeTab === 'student' && (
@@ -80,6 +164,8 @@ const RegisterContainer = () => {
                   required
                   name="institutionName"
                   id="institutionName"
+                  value={formData.institutionName}
+                  onChange={(e) => handleInputChange(e, 'institutionName')}
                 />
               </div>
             )}
@@ -95,13 +181,20 @@ const RegisterContainer = () => {
                     required
                     name="companyName"
                     id="companyName"
+                    value={formData.companyName}
+                    onChange={(e) => handleInputChange(e, 'companyName')}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="incomeSource" className="block text-sm">
                     Income Source
                   </Label>
-                  <Select>
+                  <Select
+                    onValueChange={(value) =>
+                      handleInputChange(value, 'incomeSource')
+                    }
+                    value={formData.incomeSource}
+                  >
                     <SelectTrigger name="incomeSource" id="incomeSource">
                       <SelectValue placeholder="Select income source" />
                     </SelectTrigger>
@@ -117,7 +210,9 @@ const RegisterContainer = () => {
               </>
             )}
 
-            <Button className="w-full">Create Account</Button>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Creating Account...' : 'Create Account'}
+            </Button>
           </div>
         </div>
       </form>
