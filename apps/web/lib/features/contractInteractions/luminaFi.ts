@@ -33,6 +33,75 @@ export function useUserProfile(contractAddress: string, userAddress: string) {
     return { profile, error, isLoading };
 }
 
+export function useUserRole(contractAddress: string, userAddress: string) {
+    const { data: investorRole } = useReadContract({
+        address: contractAddress as `0x${string}`,
+        abi: LUMINAFI_ABI,
+        functionName: 'INVESTOR_ROLE',
+    });
+
+    const { data: borrowerRole } = useReadContract({
+        address: contractAddress as `0x${string}`,
+        abi: LUMINAFI_ABI,
+        functionName: 'BORROWER_ROLE',
+    });
+
+    const { data: isInvestor, isLoading: isLoadingInvestor } = useReadContract({
+        address: contractAddress as `0x${string}`,
+        abi: LUMINAFI_ABI,
+        functionName: 'hasRole',
+        args: [investorRole as `0x${string}`, userAddress as `0x${string}`],
+    });
+
+    const { data: isBorrower, isLoading: isLoadingBorrower } = useReadContract({
+        address: contractAddress as `0x${string}`,
+        abi: LUMINAFI_ABI,
+        functionName: 'hasRole',
+        args: [borrowerRole as `0x${string}`, userAddress as `0x${string}`],
+    });
+
+    const isLoading = isLoadingInvestor || isLoadingBorrower;
+
+    return {
+        isInvestor: !!isInvestor,
+        isBorrower: !!isBorrower,
+        hasAnyRole: !!isInvestor || !!isBorrower,
+        isLoading
+    };
+}
+
+export function useInvestorInfo(contractAddress: string, investorAddress: string) {
+    const { data, error, isLoading } = useReadContract({
+        address: contractAddress as `0x${string}`,
+        abi: LUMINAFI_ABI,
+        functionName: 'getInvestorInfo',
+        args: [investorAddress as `0x${string}`]
+    });
+
+    const investorInfo = data ? {
+        contribution: formatUnits(data[0], 18),
+        hasVotingRights: data[1],
+        votingWeight: Number(data[2])
+    } : undefined;
+
+    return { investorInfo, error, isLoading };
+}
+
+export function useInvestmentPoolInfo(contractAddress: string) {
+    const { data, error, isLoading } = useReadContract({
+        address: contractAddress as `0x${string}`,
+        abi: LUMINAFI_ABI,
+        functionName: 'getInvestmentPoolInfo'
+    });
+
+    const poolInfo = data ? {
+        totalPool: formatUnits(data[0], 18),
+        insurancePool: formatUnits(data[1], 18),
+    } : undefined;
+
+    return { poolInfo, error, isLoading };
+}
+
 export function useLoanSummary(contractAddress: string, loanId: number) {
     const { data, isError, isLoading } = useReadContract({
         address: contractAddress as `0x${string}`,
@@ -49,7 +118,7 @@ export function useLoanSummary(contractAddress: string, loanId: number) {
         profitSharePercentage: Number(data.profitSharePercentage),
         status: Number(data.status) as LoanStatus,
         votes: Number(data.votes),
-        totalInvestors: Number(data.totalInvestors),
+        totalVoters: Number(data.totalVoters),
         paidAmount: formatUnits(data.paidAmount, 6),
         nextPaymentDue: Number(data.nextPaymentDue)
     } : undefined;
@@ -57,16 +126,14 @@ export function useLoanSummary(contractAddress: string, loanId: number) {
     return { loan, isError, isLoading };
 }
 
-
-export async function useRegisterUser(contractAddress: string): WriteReturnType {
+export async function useRegisterAsBorrower(contractAddress: string): WriteReturnType {
     const { writeContractAsync, data, error, isPending, isSuccess } = useWriteContract();
 
     await writeContractAsync({
         address: contractAddress as `0x${string}`,
         abi: LUMINAFI_ABI,
-        functionName: 'registerUser',
+        functionName: 'registerAsBorrower',
         args: [],
-        account: contractAddress as `0x${string}`,
     })
 
     return {
@@ -74,6 +141,47 @@ export async function useRegisterUser(contractAddress: string): WriteReturnType 
         error: error?.message,
         isPending,
         isSuccess,
+    };
+}
+
+export async function useRegisterAsInvestor(contractAddress: string): WriteReturnType {
+    const { writeContractAsync, data, error, isPending, isSuccess } = useWriteContract();
+
+    await writeContractAsync({
+        address: contractAddress as `0x${string}`,
+        abi: LUMINAFI_ABI,
+        functionName: 'registerAsInvestor',
+        args: [],
+    })
+
+    return {
+        hash: data,
+        error: error?.message,
+        isPending,
+        isSuccess,
+    };
+}
+
+export async function useInvestInLuminaFi(
+    contractAddress: string,
+    amountInvestmentToken: string
+): WriteReturnType {
+    const { writeContractAsync, data, error, isPending, isSuccess } = useWriteContract();
+
+    const amountInBaseUnits = parseUnits(amountInvestmentToken, 18);
+
+    await writeContractAsync({
+        address: contractAddress as `0x${string}`,
+        abi: LUMINAFI_ABI,
+        functionName: 'investInLuminaFi',
+        args: [amountInBaseUnits],
+    });
+
+    return {
+        hash: data,
+        error: error?.message,
+        isPending,
+        isSuccess
     };
 }
 
@@ -90,7 +198,6 @@ export async function useAddCredential(
         abi: LUMINAFI_ABI,
         functionName: 'addCredential',
         args: [institution, program, documentHash],
-        account: contractAddress as `0x${string}`,
     })
 
     return {
@@ -117,7 +224,6 @@ export async function useRequestLoan(
         abi: LUMINAFI_ABI,
         functionName: 'requestLoan',
         args: [amountInBaseUnits, BigInt(termMonths), BigInt(profitSharePercentage)],
-        account: contractAddress as `0x${string}`,
     })
 
     return {
@@ -136,28 +242,6 @@ export async function useVoteForLoan(contractAddress: string, loanId: number): W
         abi: LUMINAFI_ABI,
         functionName: 'voteForLoan',
         args: [BigInt(loanId)],
-    });
-
-    return {
-        hash: data,
-        error: error?.message,
-        isPending,
-        isSuccess
-    };
-}
-
-export async function useInvestInLoan(contractAddress: string,
-    loanId: number,
-    amountInvestmentToken: string): WriteReturnType {
-    const { writeContractAsync, data, error, isPending, isSuccess } = useWriteContract();
-
-    const amountInBaseUnits = parseUnits(amountInvestmentToken, 18);
-
-    await writeContractAsync({
-        address: contractAddress as `0x${string}`,
-        abi: LUMINAFI_ABI,
-        functionName: 'investInLoan',
-        args: [BigInt(loanId), amountInBaseUnits],
     });
 
     return {
