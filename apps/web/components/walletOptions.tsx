@@ -1,37 +1,14 @@
 import * as React from 'react';
 import { Connector, useConnect } from 'wagmi';
+import { Button } from './ui/button';
+import { metaMask } from 'wagmi/connectors';
 
 export function WalletOptions() {
-  const { connectors, connect } = useConnect();
+  const { connect } = useConnect();
 
-  return connectors.map((connector) => (
-    <WalletOption
-      key={connector.uid}
-      connector={connector}
-      onClick={() => connect({ connector })}
-    />
-  ));
+  return <WalletOption onClick={() => connect({ connector: metaMask() })} />;
 }
 
-function WalletOption({
-  connector,
-  onClick,
-}: {
-  connector: Connector;
-  onClick: () => void;
-}) {
-  const [ready, setReady] = React.useState(false);
-
-  React.useEffect(() => {
-    (async () => {
-      const provider = await connector.getProvider();
-      setReady(!!provider);
-    })();
-  }, [connector]);
-
-  return (
-    <button disabled={!ready} onClick={onClick}>
-      {connector.name}
-    </button>
-  );
+function WalletOption({ onClick }: { onClick: () => void }) {
+  return <Button onClick={onClick}>Connect Metamask</Button>;
 }
