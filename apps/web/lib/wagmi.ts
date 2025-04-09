@@ -1,10 +1,13 @@
-import { http, createConfig } from 'wagmi';
-import { mainnet, sepolia } from 'wagmi/chains';
+import { http, createConfig, injected } from 'wagmi';
+import { eduChainTestnet } from 'wagmi/chains';
 
 export const config = createConfig({
-  chains: [mainnet, sepolia],
+  chains: [eduChainTestnet],
   transports: {
-    [mainnet.id]: http(),
-    [sepolia.id]: http(),
+    [eduChainTestnet.id]: http(),
   },
+  connectors: [
+    injected(),
+  ],
+  ssr: true,
 });

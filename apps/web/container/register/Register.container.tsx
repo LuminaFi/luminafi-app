@@ -15,6 +15,8 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 import { useRouter } from 'next/navigation';
+import { useRegisterAsBorrower } from '~/lib/features/contractInteractions/luminaFi';
+import { TESTNET_SMART_CONTRACT_ADDRESS } from '~/lib/abis/luminaFiAbi';
 
 interface FormData {
   fullname: string;
@@ -35,6 +37,7 @@ const RegisterContainer = () => {
     incomeSource: '',
   });
   const [isLoading, setIsLoading] = useState(false);
+  const { registerAsBorrower, error } = useRegisterAsBorrower(TESTNET_SMART_CONTRACT_ADDRESS);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement> | string,
@@ -51,47 +54,55 @@ const RegisterContainer = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    try {
-      const response = await fetch('/api/user', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(activeTab === 'student' ? {  
-          userId: ocAuth.OCId,
-          userName: ocAuth.OCId,
-          walletAddress: ocAuth.ethAddress,
-          fullName: formData.fullname, 
-          role: activeTab, 
-          transcript: null, 
-          essay: '', 
-          institutionName: '', 
-          amount: 0,
-        } : {
-          userId: ocAuth.OCId,
-          userName: ocAuth.OCId,
-          walletAddress: ocAuth.ethAddress,          
-          fullName: formData.fullname,
-          companyName: formData.companyName,
-          incomeSource: formData.incomeSource,
-          role: activeTab,
-          transcript: null, 
-          essay: '', 
-          institutionName: '', 
-          amount: 0,          
-        }),
-      });
+    await registerAsBorrower();
 
-      if (response.ok) {
-        router.push('/upload-credentials');
-      } else {
-        throw new Error('Registration failed');
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    console.log(error);
+
+    setIsLoading(false);
+    
+
+
+    // try {
+    //   const response = await fetch('/api/user', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify(activeTab === 'student' ? {  
+    //       userId: ocAuth.OCId,
+    //       userName: ocAuth.OCId,
+    //       walletAddress: ocAuth.ethAddress,
+    //       fullName: formData.fullname, 
+    //       role: activeTab, 
+    //       transcript: null, 
+    //       essay: '', 
+    //       institutionName: '', 
+    //       amount: 0,
+    //     } : {
+    //       userId: ocAuth.OCId,
+    //       userName: ocAuth.OCId,
+    //       walletAddress: ocAuth.ethAddress,          
+    //       fullName: formData.fullname,
+    //       companyName: formData.companyName,
+    //       incomeSource: formData.incomeSource,
+    //       role: activeTab,
+    //       transcript: null, 
+    //       essay: '', 
+    //       institutionName: '', 
+    //       amount: 0,          
+    //     }),
+    //   });
+
+    //   if (response.ok) {
+    //     router.push('/upload-credentials');
+    //   } else {
+    //     throw new Error('Registration failed');
+    //   }
+    // } catch (error) {
+    //   console.error('Registration error:', error);
+    // } finally {
+    //   setIsLoading(false);
+    // }
   };
 
   return (

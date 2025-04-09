@@ -7,6 +7,8 @@ import { Button } from '~/components/ui/button';
 import React from 'react';
 import { useOCAuth } from '@opencampus/ocid-connect-js';
 import { cn } from '~/lib/utils';
+import { useAccount } from 'wagmi';
+import { WalletOptions } from './walletOptions';
 
 const menuItems = [
   { name: 'Features', href: '#features' },
@@ -19,6 +21,8 @@ export const HeroHeader = () => {
   const [isScrolled, setIsScrolled] = React.useState(false);
 
   const { authState, ocAuth } = useOCAuth();
+
+  const { isConnected } = useAccount();
 
   const handleLogin = async () => {
     try {
@@ -111,6 +115,7 @@ export const HeroHeader = () => {
                 {authState?.isAuthenticated ? (
                   <div className="flex flex-row justify-between items-center gap-3">
                     <p>Hi, {ocAuth?.OCId}</p>
+                    {!isConnected && <WalletOptions />}
                     {/* <Button
                       asChild
                       // variant="outline"

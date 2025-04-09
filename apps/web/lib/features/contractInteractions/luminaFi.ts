@@ -139,7 +139,7 @@ export function useLoanSummary(contractAddress: string, loanId: number) {
   return { loan, isError, isLoading };
 }
 
-export async function useRegisterAsBorrower(contractAddress: string) {
+export function useRegisterAsBorrower(contractAddress: string) {
   const { writeContractAsync, data, error, isPending, isSuccess } =
     useWriteContract();
 
