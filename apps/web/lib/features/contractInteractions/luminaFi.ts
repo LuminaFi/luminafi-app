@@ -165,7 +165,7 @@ export function useRegisterAsBorrower(contractAddress: string) {
   };
 }
 
-export async function useRegisterAsInvestor(contractAddress: string) {
+export function useRegisterAsInvestor(contractAddress: string) {
   const { writeContractAsync, data, error, isPending, isSuccess } =
     useWriteContract();
 
@@ -191,7 +191,7 @@ export async function useRegisterAsInvestor(contractAddress: string) {
   };
 }
 
-export async function useInvestInLuminaFi(
+export function useInvestInLuminaFi(
   contractAddress: string,
   amountInvestmentToken: string,
 ) {
@@ -222,7 +222,7 @@ export async function useInvestInLuminaFi(
   };
 }
 
-export async function useAddCredential(
+export function useAddCredential(
   contractAddress: string,
   institution: string,
   program: string,
@@ -253,7 +253,7 @@ export async function useAddCredential(
   };
 }
 
-export async function useRequestLoan(
+export function useRequestLoan(
   contractAddress: string,
   amountStablecoin: string,
   termMonths: number,
@@ -290,7 +290,7 @@ export async function useRequestLoan(
   };
 }
 
-export async function useVoteForLoan(contractAddress: string, loanId: number) {
+export function useVoteForLoan(contractAddress: string, loanId: number) {
   const { writeContractAsync, data, error, isPending, isSuccess } =
     useWriteContract();
 
@@ -316,7 +316,7 @@ export async function useVoteForLoan(contractAddress: string, loanId: number) {
   };
 }
 
-export async function useMakePayment(contractAddress: string, loanId: number) {
+export function useMakePayment(contractAddress: string, loanId: number) {
   const { writeContractAsync, data, error, isPending, isSuccess } =
     useWriteContract();
 
