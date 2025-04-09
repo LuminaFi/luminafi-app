@@ -40,6 +40,8 @@ export interface InvestmentPoolInfo {
   insurancePool: string;
 }
 
+export const TESTNET_SMART_CONTRACT_ADDRESS = "0x47767548Cb3A074E1240e37fB497E082b9cA9A96";
+
 export const LUMINAFI_ABI = [
   {
     inputs: [
