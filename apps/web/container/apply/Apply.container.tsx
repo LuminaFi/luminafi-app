@@ -51,13 +51,13 @@ const ApplyContainer = () => {
 
     try {
       console.log('Submitting loan request:');
-      console.log('Amount:', formData.amount);
+      console.log('Amount:', typeof formData.amount.toString());
       console.log('Term (years):', formData.borrowTerm);
-      console.log('Term (months):', formData.borrowTerm * 12);
-      console.log('Reason:', formData.reason);
+      console.log('Term (months):', typeof (formData.borrowTerm * 12));
+      console.log('Reason:', typeof formData.reason);
       // Call the requestLoan function from the hook
       const x = await requestLoan(
-        formData.amount,
+        formData.amount.toString(),
         formData.borrowTerm * 12, // Convert years to months
         profitSharePercentage,
         formData.reason,
