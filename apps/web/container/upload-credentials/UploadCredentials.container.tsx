@@ -148,27 +148,27 @@ const UploadCredentialsContainer = () => {
       </form>
 
       {alertMessage && (
-            <Alert
-              variant={
-                alertMessage.type === 'error' ? 'destructive' : 'default'
-              }
-              className={
-                alertMessage.type === 'success'
-                  ? 'bg-green-50 text-green-800 border-green-200'
-                  : ''
-              }
-            >
-              {alertMessage.type === 'error' ? (
-                <AlertCircle className="h-4 w-4" />
-              ) : (
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
-              )}
-              <AlertTitle>
-                {alertMessage.type === 'error' ? 'Error' : 'Success'}
-              </AlertTitle>
-              <AlertDescription>{alertMessage.message}</AlertDescription>
-            </Alert>
+        <Alert
+          variant={
+            alertMessage.type === 'error' ? 'destructive' : 'default'
+          }
+          className={
+            alertMessage.type === 'success'
+              ? 'bg-green-50 text-green-800 border-green-200'
+              : ''
+          }
+        >
+          {alertMessage.type === 'error' ? (
+            <AlertCircle className="h-4 w-4" />
+          ) : (
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
           )}
+          <AlertTitle>
+            {alertMessage.type === 'error' ? 'Error' : 'Success'}
+          </AlertTitle>
+          <AlertDescription>{alertMessage.message}</AlertDescription>
+        </Alert>
+      )}
     </section>
   );
 };
