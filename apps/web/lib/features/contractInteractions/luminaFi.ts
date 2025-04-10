@@ -615,3 +615,44 @@ export function useGrantAdminRole(contractAddress: string) {
     grantAdminRole,
   };
 }
+
+export function useApproveInvestmentToken(
+  tokenAddress: string,
+  spenderAddress: string,
+) {
+  const { writeContractAsync, data, error, isPending, isSuccess } =
+    useWriteContract();
+
+  const approveToken = async (amount: string) => {
+    try {
+      const amountInBaseUnits = parseUnits(amount, 18);
+      await writeContractAsync({
+        address: tokenAddress as `0x${string}`,
+        abi: [
+          {
+            inputs: [
+              { internalType: 'address', name: 'spender', type: 'address' },
+              { internalType: 'uint256', name: 'amount', type: 'uint256' },
+            ],
+            name: 'approve',
+            outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        functionName: 'approve',
+        args: [spenderAddress as `0x${string}`, amountInBaseUnits],
+      });
+    } catch (e) {
+      console.error('Approval error:', e);
+    }
+  };
+
+  return {
+    hash: data,
+    error: error?.message,
+    isPending,
+    isSuccess,
+    approveToken,
+  };
+}

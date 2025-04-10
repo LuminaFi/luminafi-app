@@ -81,6 +81,9 @@ export interface InvestmentPoolInfo {
 export const TESTNET_SMART_CONTRACT_ADDRESS =
   '0x040149F75559F5F12834dad11aCBdFC30DDaA140';
 
+export const INVESTMENT_TOKEN_ADDRESS =
+  '0xC2f2f9004B2F3fF1798AaD36bCC910F5c0A7bC4e';
+
 export const LUMINAFI_ABI = [
   {
     inputs: [
