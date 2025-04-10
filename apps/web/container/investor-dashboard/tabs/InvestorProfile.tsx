@@ -19,8 +19,12 @@ import {
   usePoolInfo,
   useInvestInPool,
   useWithdrawInvestment,
+  useApproveInvestmentToken,
 } from '~/lib/features/contractInteractions/luminaFi';
-import { TESTNET_SMART_CONTRACT_ADDRESS } from '~/lib/abis/luminaFiAbi';
+import {
+  INVESTMENT_TOKEN_ADDRESS,
+  TESTNET_SMART_CONTRACT_ADDRESS,
+} from '~/lib/abis/luminaFiAbi';
 import { useAccount } from 'wagmi';
 import { useRouter } from 'next/navigation';
 import { Button } from '~/components/ui/button';
@@ -132,6 +136,16 @@ const InvestorProfile = () => {
     isSuccess: isInvestmentSuccess,
   } = useInvestInPool(TESTNET_SMART_CONTRACT_ADDRESS);
 
+  const {
+    approveToken,
+    isPending: isApprovePending,
+    isSuccess: isApproveSuccess,
+    error: approveError,
+  } = useApproveInvestmentToken(
+    INVESTMENT_TOKEN_ADDRESS,
+    TESTNET_SMART_CONTRACT_ADDRESS,
+  );
+
   // Withdrawal hooks
   const {
     withdrawInvestment,
@@ -226,9 +240,13 @@ const InvestorProfile = () => {
     }
 
     try {
+      // First approve the tokens
+      await approveToken(investmentAmount);
+
+      // After approval is successful, invest
       await investInPool(investmentAmount);
     } catch (error) {
-      console.error('Investment error:', error);
+      console.error('Investment process error:', error);
       setInvestmentInProgress(false);
 
       toast('Investment Failed', {
