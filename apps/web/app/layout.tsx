@@ -7,6 +7,7 @@ import '../styles/output.css';
 import Providers from '~/components/providers';
 import { HeroHeader } from '~/components/header';
 import { FooterComponent as Footer } from '~/components/footer';
+import { Toaster } from '~/components/ui/sonner';
 
 export const metadata: Metadata = {
   title: 'LuminaFi - Student Funding Platform',
@@ -45,6 +46,7 @@ export default function RootLayout({
             <HeroHeader />
             {children}
             <Footer />
+            <Toaster />
           </>
         </Providers>
       </body>
