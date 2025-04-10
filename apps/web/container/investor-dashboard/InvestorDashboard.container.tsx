@@ -1,17 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Wallet,
-  BarChart3,
-  PieChart,
-  History,
-  Settings,
-  DollarSign,
-} from 'lucide-react';
+import { Wallet, PieChart, History, Settings, DollarSign } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import InvestorProfile from './tabs/InvestorProfile';
-import InvestmentOpportunities from './tabs/InvestmentOpportunities';
+import BorrowerVoting from './tabs/BorrowerVoting';
 import InvestmentPortfolio from './tabs/InvestmentPortfolio';
 import TransactionHistory from './tabs/InvestorTransactionHistory';
 import InvestorSettings from './tabs/InvestorSettings';
@@ -32,7 +25,7 @@ const InvestorDashboard = () => {
       case 'Profile':
         return <InvestorProfile />;
       case 'Investment Opportunities':
-        return <InvestmentOpportunities />;
+        return <BorrowerVoting />;
       case 'Portfolio':
         return <InvestmentPortfolio />;
       case 'Transaction History':

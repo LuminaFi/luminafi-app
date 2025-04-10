@@ -14,7 +14,11 @@
     "strictNullChecks": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "lib": ["ES2015", "DOM"]
+    "lib": [
+      "ES2015",
+      "DOM"
+    ],
+    "jsx": "preserve"
   },
   "include": [
     "next-env.d.ts",
