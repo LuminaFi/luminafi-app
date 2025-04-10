@@ -138,7 +138,7 @@ const Home = () => {
                     size="lg"
                     className="rounded-xl px-5 text-base"
                   >
-                    <Link href="#link">
+                    <Link href="/apply">
                       <span className="text-nowrap">Apply Now</span>
                     </Link>
                   </Button>
