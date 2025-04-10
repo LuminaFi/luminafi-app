@@ -1,5 +1,4 @@
 'use client';
-
 import { useRouter } from 'next/navigation';
 import { useEffect, ComponentType, useState } from 'react';
 import { useOCAuth } from '@opencampus/ocid-connect-js';
@@ -21,47 +20,58 @@ const withAuth = <P extends WithAuthProps>(
   const WithAuthComponent = (props: P) => {
     const router = useRouter();
     const { address, isConnected } = useAccount();
-    const { ocAuth, isLoading } = useOCAuth();
+    const { ocAuth, isLoading: ocAuthLoading } = useOCAuth();
     const [mounted, setMounted] = useState(false);
 
-    // Contract hooks
-    const { profile } = useInvestorProfile(
+    // Contract hooks - only run these if we have an address
+    const { profile, isLoading: profileLoading } = useInvestorProfile(
       TESTNET_SMART_CONTRACT_ADDRESS,
       address || '0x0000000000000000000000000000000000000000',
     );
 
-    const { investorInfo } = useInvestorInfo(
+    const { investorInfo, isLoading: investorInfoLoading } = useInvestorInfo(
       TESTNET_SMART_CONTRACT_ADDRESS,
       address || '0x0000000000000000000000000000000000000000',
     );
 
-    // Handle mounting
+    // Consolidated loading state
+    const isLoading =
+      ocAuthLoading || profileLoading || investorInfoLoading || !mounted;
+
+    // Handle mounting - wait for next render cycle to ensure client-side execution
     useEffect(() => {
-      setMounted(true);
-      return () => setMounted(false);
+      const timer = setTimeout(() => {
+        setMounted(true);
+      }, 100);
+
+      return () => clearTimeout(timer);
     }, []);
 
-    // Auth check effect
+    // Auth check effect - add debounce to avoid premature redirects
     useEffect(() => {
-      if (
-        mounted &&
-        !isLoading &&
-        (!ocAuth?.OCId ||
-        !isConnected)
-      ) {
-        router.push('/login');
-      }
-    }, [
-      mounted,
-      ocAuth,
-      isLoading,
-      isConnected,
-      profile,
-      investorInfo,
-      router,
-    ]);
+      // Only check auth state when everything is loaded and component is mounted
+      if (!isLoading) {
+        // Check for both OpenCampus auth and wallet connection
+        const isAuthenticated = ocAuth?.OCId && isConnected;
 
-    if (!mounted || isLoading) {
+        if (!isAuthenticated) {
+          console.log('Authentication required:', {
+            ocAuthPresent: !!ocAuth?.OCId,
+            walletConnected: isConnected,
+          });
+
+          // Add a small delay to avoid redirection flashes
+          const redirectTimer = setTimeout(() => {
+            router.push('/login');
+          }, 300);
+
+          return () => clearTimeout(redirectTimer);
+        }
+      }
+    }, [mounted, ocAuth, isLoading, isConnected, router]);
+
+    // Only show loading while we're actually loading, not when doing auth checks
+    if (isLoading) {
       return (
         <div className="flex h-screen items-center justify-center">
           <Loading />
@@ -69,6 +79,7 @@ const withAuth = <P extends WithAuthProps>(
       );
     }
 
+    // Return the component if authenticated
     return <WrappedComponent {...props} />;
   };
 
