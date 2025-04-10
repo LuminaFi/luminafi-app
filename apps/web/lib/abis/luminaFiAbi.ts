@@ -7,7 +7,18 @@ export enum LoanStatus {
   Defaulted = 5,
 }
 
-export interface UserProfile {
+export enum CredentialLevel {
+  None = 0,
+  Basic = 1,
+  Intermediate = 2,
+  Advanced = 3,
+  Expert = 4,
+}
+
+export interface BorrowerProfileView {
+  name: string;
+  institutionName: string;
+  userName: string;
   userAddress: string;
   reputationScore: number;
   hasActiveLoan: boolean;
@@ -16,11 +27,35 @@ export interface UserProfile {
   credentialCount: number;
 }
 
-export interface LoanSummary {
+export interface InvestorProfileView {
+  name: string;
+  institutionName: string;
+  userName: string;
+  sourceOfIncome: string;
+  userAddress: string;
+  reputationScore: number;
+  registered: boolean;
+}
+
+export interface CredentialView {
+  institution: string;
+  program: string;
+  documentHash: string;
+  level: CredentialLevel;
+  verified: boolean;
+  verificationTimestamp: number;
+}
+
+export interface LoanSummaryBase {
   id: number;
   borrower: string;
+  reason: string;
+  proof: string;
   amountStablecoin: string;
   termMonths: number;
+}
+
+export interface LoanSummaryDetails {
   profitSharePercentage: number;
   status: LoanStatus;
   votes: number;
@@ -31,7 +66,7 @@ export interface LoanSummary {
 
 export interface InvestorInfo {
   contribution: string;
-  hasVotingRights: boolean;
+  hasVotingRight: boolean;
   votingWeight: number;
 }
 
@@ -40,7 +75,8 @@ export interface InvestmentPoolInfo {
   insurancePool: string;
 }
 
-export const TESTNET_SMART_CONTRACT_ADDRESS = "0x47767548Cb3A074E1240e37fB497E082b9cA9A96";
+export const TESTNET_SMART_CONTRACT_ADDRESS =
+  '0xBfbec650fB12358741C2F76139A350a603291805';
 
 export const LUMINAFI_ABI = [
   {
@@ -127,14 +163,51 @@ export const LUMINAFI_ABI = [
 
   // Registration functions
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: 'string',
+        name: '_name',
+        type: 'string',
+      },
+      {
+        internalType: 'string',
+        name: '_institutionName',
+        type: 'string',
+      },
+      {
+        internalType: 'string',
+        name: '_userName',
+        type: 'string',
+      },
+    ],
     name: 'registerAsBorrower',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [],
+    inputs: [
+      {
+        internalType: 'string',
+        name: '_name',
+        type: 'string',
+      },
+      {
+        internalType: 'string',
+        name: '_institutionName',
+        type: 'string',
+      },
+      {
+        internalType: 'string',
+        name: '_userName',
+        type: 'string',
+      },
+      {
+        internalType: 'string',
+        name: '_sourceOfIncome',
+        type: 'string',
+      },
+    ],
     name: 'registerAsInvestor',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -173,6 +246,16 @@ export const LUMINAFI_ABI = [
         internalType: 'uint256',
         name: '_profitSharePercentage',
         type: 'uint256',
+      },
+      {
+        internalType: 'string',
+        name: '_reason',
+        type: 'string',
+      },
+      {
+        internalType: 'string',
+        name: '_proof',
+        type: 'string',
       },
     ],
     name: 'requestLoan',
@@ -268,7 +351,649 @@ export const LUMINAFI_ABI = [
     type: 'function',
   },
 
-  // View functions - Getting information
+  // Borrower profile view functions
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+    ],
+    name: 'getBorrowerProfile',
+    outputs: [
+      {
+        components: [
+          {
+            internalType: 'string',
+            name: 'name',
+            type: 'string',
+          },
+          {
+            internalType: 'string',
+            name: 'institutionName',
+            type: 'string',
+          },
+          {
+            internalType: 'string',
+            name: 'userName',
+            type: 'string',
+          },
+          {
+            internalType: 'address',
+            name: 'userAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'reputationScore',
+            type: 'uint256',
+          },
+          {
+            internalType: 'bool',
+            name: 'hasActiveLoan',
+            type: 'bool',
+          },
+          {
+            internalType: 'uint256',
+            name: 'activeLoanId',
+            type: 'uint256',
+          },
+          {
+            internalType: 'bool',
+            name: 'registered',
+            type: 'bool',
+          },
+          {
+            internalType: 'uint256',
+            name: 'credentialCount',
+            type: 'uint256',
+          },
+        ],
+        internalType: 'struct LuminaFi.BorrowerProfileView',
+        name: '',
+        type: 'tuple',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+
+  // Investor profile view functions
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+    ],
+    name: 'getInvestorProfile',
+    outputs: [
+      {
+        components: [
+          {
+            internalType: 'string',
+            name: 'name',
+            type: 'string',
+          },
+          {
+            internalType: 'string',
+            name: 'institutionName',
+            type: 'string',
+          },
+          {
+            internalType: 'string',
+            name: 'userName',
+            type: 'string',
+          },
+          {
+            internalType: 'string',
+            name: 'sourceOfIncome',
+            type: 'string',
+          },
+          {
+            internalType: 'address',
+            name: 'userAddress',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'reputationScore',
+            type: 'uint256',
+          },
+          {
+            internalType: 'bool',
+            name: 'registered',
+            type: 'bool',
+          },
+        ],
+        internalType: 'struct LuminaFi.InvestorProfileView',
+        name: '',
+        type: 'tuple',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+
+  // Credential view function
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_index',
+        type: 'uint256',
+      },
+    ],
+    name: 'getUserCredential',
+    outputs: [
+      {
+        components: [
+          {
+            internalType: 'string',
+            name: 'institution',
+            type: 'string',
+          },
+          {
+            internalType: 'string',
+            name: 'program',
+            type: 'string',
+          },
+          {
+            internalType: 'string',
+            name: 'documentHash',
+            type: 'string',
+          },
+          {
+            internalType: 'enum LuminaFi.CredentialLevel',
+            name: 'level',
+            type: 'uint8',
+          },
+          {
+            internalType: 'bool',
+            name: 'verified',
+            type: 'bool',
+          },
+          {
+            internalType: 'uint256',
+            name: 'verificationTimestamp',
+            type: 'uint256',
+          },
+        ],
+        internalType: 'struct LuminaFi.CredentialView',
+        name: '',
+        type: 'tuple',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+
+  // Loan view functions
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_loanId',
+        type: 'uint256',
+      },
+    ],
+    name: 'getLoanBasicInfo',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: 'borrower',
+        type: 'address',
+      },
+      {
+        internalType: 'string',
+        name: 'reason',
+        type: 'string',
+      },
+      {
+        internalType: 'string',
+        name: 'proof',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_loanId',
+        type: 'uint256',
+      },
+    ],
+    name: 'getLoanFinancialInfo',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'amountStablecoin',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'termMonths',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'profitSharePercentage',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'monthlyPaymentAmount',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_loanId',
+        type: 'uint256',
+      },
+    ],
+    name: 'getLoanStatusInfo',
+    outputs: [
+      {
+        internalType: 'enum LuminaFi.LoanStatus',
+        name: 'status',
+        type: 'uint8',
+      },
+      {
+        internalType: 'uint256',
+        name: 'votes',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'totalVoters',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'startTimestamp',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'endTimestamp',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_loanId',
+        type: 'uint256',
+      },
+    ],
+    name: 'getLoanPaymentInfo',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'paidAmount',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'nextPaymentDue',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+
+  // Simpler getter functions for borrower
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+    ],
+    name: 'getBorrowerName',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+    ],
+    name: 'getBorrowerInstitution',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+    ],
+    name: 'getBorrowerUsername',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+    ],
+    name: 'getBorrowerStatus',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: 'registered',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'reputationScore',
+        type: 'uint256',
+      },
+      {
+        internalType: 'bool',
+        name: 'hasActiveLoan',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'activeLoanId',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+    ],
+    name: 'getBorrowerCredentialCount',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+
+  // Simpler getter functions for investor
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+    ],
+    name: 'getInvestorName',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+    ],
+    name: 'getInvestorInstitution',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+    ],
+    name: 'getInvestorUsername',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+    ],
+    name: 'getInvestorSourceOfIncome',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+    ],
+    name: 'getInvestorStatus',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: 'registered',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'reputationScore',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+
+  // Credential getters
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_index',
+        type: 'uint256',
+      },
+    ],
+    name: 'getCredentialInstitution',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_index',
+        type: 'uint256',
+      },
+    ],
+    name: 'getCredentialProgram',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_index',
+        type: 'uint256',
+      },
+    ],
+    name: 'getCredentialHash',
+    outputs: [
+      {
+        internalType: 'string',
+        name: '',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_user',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: '_index',
+        type: 'uint256',
+      },
+    ],
+    name: 'getCredentialVerification',
+    outputs: [
+      {
+        internalType: 'enum LuminaFi.CredentialLevel',
+        name: 'level',
+        type: 'uint8',
+      },
+      {
+        internalType: 'bool',
+        name: 'verified',
+        type: 'bool',
+      },
+      {
+        internalType: 'uint256',
+        name: 'timestamp',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+
+  // Investment info functions
   {
     inputs: [
       {
@@ -286,7 +1011,7 @@ export const LUMINAFI_ABI = [
       },
       {
         internalType: 'bool',
-        name: 'hasVotingRights',
+        name: 'hasVotingRight',
         type: 'bool',
       },
       {
@@ -310,170 +1035,6 @@ export const LUMINAFI_ABI = [
       {
         internalType: 'uint256',
         name: 'insurancePool',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: '_loanId',
-        type: 'uint256',
-      },
-    ],
-    name: 'getLoanSummary',
-    outputs: [
-      {
-        components: [
-          {
-            internalType: 'uint256',
-            name: 'id',
-            type: 'uint256',
-          },
-          {
-            internalType: 'address',
-            name: 'borrower',
-            type: 'address',
-          },
-          {
-            internalType: 'uint256',
-            name: 'amountStablecoin',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'termMonths',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'profitSharePercentage',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint8',
-            name: 'status',
-            type: 'uint8',
-          },
-          {
-            internalType: 'uint256',
-            name: 'votes',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'totalVoters',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'paidAmount',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint256',
-            name: 'nextPaymentDue',
-            type: 'uint256',
-          },
-        ],
-        internalType: 'struct LuminaFi.LoanSummary',
-        name: '',
-        type: 'tuple',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_user',
-        type: 'address',
-      },
-    ],
-    name: 'getUserProfile',
-    outputs: [
-      {
-        internalType: 'address',
-        name: 'userAddress',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: 'reputationScore',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bool',
-        name: 'hasActiveLoan',
-        type: 'bool',
-      },
-      {
-        internalType: 'uint256',
-        name: 'activeLoanId',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bool',
-        name: 'registered',
-        type: 'bool',
-      },
-      {
-        internalType: 'uint256',
-        name: 'credentialCount',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_user',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '_index',
-        type: 'uint256',
-      },
-    ],
-    name: 'getUserCredential',
-    outputs: [
-      {
-        internalType: 'string',
-        name: 'institution',
-        type: 'string',
-      },
-      {
-        internalType: 'string',
-        name: 'program',
-        type: 'string',
-      },
-      {
-        internalType: 'string',
-        name: 'documentHash',
-        type: 'string',
-      },
-      {
-        internalType: 'uint8',
-        name: 'level',
-        type: 'uint8',
-      },
-      {
-        internalType: 'bool',
-        name: 'verified',
-        type: 'bool',
-      },
-      {
-        internalType: 'uint256',
-        name: 'verificationTimestamp',
         type: 'uint256',
       },
     ],
@@ -677,6 +1238,12 @@ export const LUMINAFI_ABI = [
         name: 'amount',
         type: 'uint256',
       },
+      {
+        indexed: false,
+        internalType: 'string',
+        name: 'reason',
+        type: 'string',
+      },
     ],
     name: 'LoanRequested',
     type: 'event',
@@ -775,6 +1342,50 @@ export const LUMINAFI_ABI = [
       },
     ],
     name: 'LoanDefaulted',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'string',
+        name: 'institution',
+        type: 'string',
+      },
+      {
+        indexed: false,
+        internalType: 'string',
+        name: 'program',
+        type: 'string',
+      },
+    ],
+    name: 'CredentialAdded',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'credentialIndex',
+        type: 'uint256',
+      },
+    ],
+    name: 'CredentialVerified',
     type: 'event',
   },
 ] as const;

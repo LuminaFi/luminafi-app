@@ -15,14 +15,20 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 import { useRouter } from 'next/navigation';
-import { useRegisterAsBorrower } from '~/lib/features/contractInteractions/luminaFi';
+import {
+  useRegisterAsBorrower,
+  useRegisterAsInvestor,
+} from '~/lib/features/contractInteractions/luminaFi';
 import { TESTNET_SMART_CONTRACT_ADDRESS } from '~/lib/abis/luminaFiAbi';
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
 interface FormData {
   fullname: string;
-  institutionName?: string;
-  companyName?: string;
-  incomeSource?: string;
+  institutionName: string;
+  userName: string;
+  companyName: string;
+  incomeSource: string;
 }
 
 const RegisterContainer = () => {
@@ -33,11 +39,30 @@ const RegisterContainer = () => {
   const [formData, setFormData] = useState<FormData>({
     fullname: '',
     institutionName: '',
+    userName: ocAuth?.OCId || '',
     companyName: '',
     incomeSource: '',
   });
   const [isLoading, setIsLoading] = useState(false);
-  const { registerAsBorrower, error } = useRegisterAsBorrower(TESTNET_SMART_CONTRACT_ADDRESS);
+  const [alertMessage, setAlertMessage] = useState<{
+    type: 'error' | 'success';
+    message: string;
+  } | null>(null);
+
+  // Hooks for smart contract interaction
+  const {
+    registerAsBorrower,
+    error: borrowerError,
+    isPending: borrowerPending,
+    isSuccess: borrowerSuccess,
+  } = useRegisterAsBorrower(TESTNET_SMART_CONTRACT_ADDRESS);
+
+  const {
+    registerAsInvestor,
+    error: investorError,
+    isPending: investorPending,
+    isSuccess: investorSuccess,
+  } = useRegisterAsInvestor(TESTNET_SMART_CONTRACT_ADDRESS);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement> | string,
@@ -50,60 +75,93 @@ const RegisterContainer = () => {
     }));
   };
 
+  const registerBorrower = async () => {
+    if (!formData.fullname || !formData.institutionName) {
+      setAlertMessage({
+        type: 'error',
+        message: 'Please fill in all required fields',
+      });
+      return;
+    }
+
+    try {
+      await registerAsBorrower(
+        formData.fullname,
+        formData.institutionName,
+        formData.userName || ocAuth?.OCId || 'user',
+      );
+    } catch (err) {
+      console.error('Registration error:', err);
+      setAlertMessage({
+        type: 'error',
+        message: 'Failed to register as a student. Please try again.',
+      });
+    }
+  };
+
+  const registerInvestor = async () => {
+    if (!formData.fullname || !formData.companyName || !formData.incomeSource) {
+      setAlertMessage({
+        type: 'error',
+        message: 'Please fill in all required fields',
+      });
+      return;
+    }
+
+    try {
+      await registerAsInvestor(
+        formData.fullname,
+        formData.companyName,
+        formData.userName || ocAuth?.OCId || 'user',
+        formData.incomeSource,
+      );
+    } catch (err) {
+      console.error('Registration error:', err);
+      setAlertMessage({
+        type: 'error',
+        message: 'Failed to register as an investor. Please try again.',
+      });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setAlertMessage(null);
 
-    await registerAsBorrower();
-
-    console.log(error);
+    if (activeTab === 'student') {
+      await registerBorrower();
+    } else {
+      await registerInvestor();
+    }
 
     setIsLoading(false);
-    
-
-
-    // try {
-    //   const response = await fetch('/api/user', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify(activeTab === 'student' ? {  
-    //       userId: ocAuth.OCId,
-    //       userName: ocAuth.OCId,
-    //       walletAddress: ocAuth.ethAddress,
-    //       fullName: formData.fullname, 
-    //       role: activeTab, 
-    //       transcript: null, 
-    //       essay: '', 
-    //       institutionName: '', 
-    //       amount: 0,
-    //     } : {
-    //       userId: ocAuth.OCId,
-    //       userName: ocAuth.OCId,
-    //       walletAddress: ocAuth.ethAddress,          
-    //       fullName: formData.fullname,
-    //       companyName: formData.companyName,
-    //       incomeSource: formData.incomeSource,
-    //       role: activeTab,
-    //       transcript: null, 
-    //       essay: '', 
-    //       institutionName: '', 
-    //       amount: 0,          
-    //     }),
-    //   });
-
-    //   if (response.ok) {
-    //     router.push('/upload-credentials');
-    //   } else {
-    //     throw new Error('Registration failed');
-    //   }
-    // } catch (error) {
-    //   console.error('Registration error:', error);
-    // } finally {
-    //   setIsLoading(false);
-    // }
   };
+
+  // Update alert message based on transaction status
+  useState(() => {
+    if (borrowerError || investorError) {
+      setAlertMessage({
+        type: 'error',
+        message:
+          borrowerError ||
+          investorError ||
+          'An error occurred during registration',
+      });
+    } else if (borrowerSuccess || investorSuccess) {
+      setAlertMessage({
+        type: 'success',
+        message: 'Registration successful!',
+      });
+
+      // Redirect after successful registration
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 2000);
+    }
+  });
+
+  const isPending = borrowerPending || investorPending;
 
   return (
     <section className="flex bg-zinc-50 px-4 pt-16 md:pt-32 dark:bg-transparent">
@@ -150,10 +208,33 @@ const RegisterContainer = () => {
             </button>
           </div>
 
+          {alertMessage && (
+            <Alert
+              variant={
+                alertMessage.type === 'error' ? 'destructive' : 'default'
+              }
+              className={
+                alertMessage.type === 'success'
+                  ? 'bg-green-50 text-green-800 border-green-200'
+                  : ''
+              }
+            >
+              {alertMessage.type === 'error' ? (
+                <AlertCircle className="h-4 w-4" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+              )}
+              <AlertTitle>
+                {alertMessage.type === 'error' ? 'Error' : 'Success'}
+              </AlertTitle>
+              <AlertDescription>{alertMessage.message}</AlertDescription>
+            </Alert>
+          )}
+
           <div className="mt-6 space-y-6">
             <div className="space-y-2">
               <Label htmlFor="fullname" className="block text-sm">
-                Fullname
+                Full Name
               </Label>
               <Input
                 type="text"
@@ -162,7 +243,27 @@ const RegisterContainer = () => {
                 id="fullname"
                 value={formData.fullname}
                 onChange={(e) => handleInputChange(e, 'fullname')}
+                disabled={isLoading || isPending}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="username" className="block text-sm">
+                Username
+              </Label>
+              <Input
+                type="text"
+                required
+                name="userName"
+                id="userName"
+                value={formData.userName || ocAuth?.OCId || ''}
+                onChange={(e) => handleInputChange(e, 'userName')}
+                disabled={true}
+                className="bg-gray-100"
+              />
+              <p className="text-xs text-gray-500">
+                Auto-generated from your OpenCampus ID
+              </p>
             </div>
 
             {activeTab === 'student' && (
@@ -177,6 +278,7 @@ const RegisterContainer = () => {
                   id="institutionName"
                   value={formData.institutionName}
                   onChange={(e) => handleInputChange(e, 'institutionName')}
+                  disabled={isLoading || isPending}
                 />
               </div>
             )}
@@ -185,7 +287,7 @@ const RegisterContainer = () => {
               <>
                 <div className="space-y-2">
                   <Label htmlFor="companyName" className="block text-sm">
-                    Company Name
+                    Company/Institution Name
                   </Label>
                   <Input
                     type="text"
@@ -194,6 +296,7 @@ const RegisterContainer = () => {
                     id="companyName"
                     value={formData.companyName}
                     onChange={(e) => handleInputChange(e, 'companyName')}
+                    disabled={isLoading || isPending}
                   />
                 </div>
                 <div className="space-y-2">
@@ -205,6 +308,7 @@ const RegisterContainer = () => {
                       handleInputChange(value, 'incomeSource')
                     }
                     value={formData.incomeSource}
+                    disabled={isLoading || isPending}
                   >
                     <SelectTrigger name="incomeSource" id="incomeSource">
                       <SelectValue placeholder="Select income source" />
@@ -221,8 +325,14 @@ const RegisterContainer = () => {
               </>
             )}
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Creating Account...' : 'Create Account'}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading || isPending}
+            >
+              {isLoading || isPending
+                ? 'Creating Account...'
+                : 'Create Account'}
             </Button>
           </div>
         </div>
