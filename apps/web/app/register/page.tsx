@@ -1,7 +1,9 @@
+'use client';
+
 import withAuth from '~/components/withAuth';
 import Register from '~/container/register';
 
-const RegisterPage: React.FC<any> = () => {
+const RegisterPage = () => {
   return <Register />;
 };
 
