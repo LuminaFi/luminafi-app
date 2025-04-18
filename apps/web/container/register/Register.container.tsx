@@ -90,6 +90,8 @@ const RegisterContainer = () => {
         formData.institutionName,
         formData.userName || ocAuth?.OCId || 'user',
       );
+
+      router.push('/upload-credentials')
     } catch (err) {
       console.error('Registration error:', err);
       setAlertMessage({
@@ -115,6 +117,8 @@ const RegisterContainer = () => {
         formData.userName || ocAuth?.OCId || 'user',
         formData.incomeSource,
       );
+
+      router.push('/dashboard/investor');
     } catch (err) {
       console.error('Registration error:', err);
       setAlertMessage({
