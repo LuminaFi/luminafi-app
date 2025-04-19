@@ -656,3 +656,145 @@ export function useApproveInvestmentToken(
     approveToken,
   };
 }
+
+/**
+ * Hook to get the total number of loans in the system
+ * @param contractAddress The address of the LuminaFi contract
+ */
+export function useGetLoanCount(contractAddress: string) {
+  const { data, error, isLoading } = useReadContract({
+    address: contractAddress as `0x${string}`,
+    abi: LUMINAFI_ABI,
+    functionName: 'getLoanCount',
+  });
+
+  const loanCount = data ? Number(data) : undefined;
+
+  return { loanCount, error, isLoading };
+}
+
+/**
+ * Hook to get the minimum votes required for loan approval
+ * @param contractAddress The address of the LuminaFi contract
+ */
+export function useGetMinVotesRequired(contractAddress: string) {
+  const { data, error, isLoading } = useReadContract({
+    address: contractAddress as `0x${string}`,
+    abi: LUMINAFI_ABI,
+    functionName: 'getMinVotesRequired',
+  });
+
+  const minVotesRequired = data ? Number(data) : undefined;
+
+  return { minVotesRequired, error, isLoading };
+}
+
+/**
+ * Hook to check if an investor has voted for a specific loan
+ * @param contractAddress The address of the LuminaFi contract
+ * @param loanId The ID of the loan to check
+ * @param voterAddress The address of the voter to check
+ */
+export function useHasVotedForLoan(
+  contractAddress: string,
+  loanId: number | undefined,
+  voterAddress: string,
+) {
+  const { data, error, isLoading } = useReadContract({
+    address: contractAddress as `0x${string}`,
+    abi: LUMINAFI_ABI,
+    functionName: 'hasVotedForLoan',
+    args:
+      loanId !== undefined
+        ? [BigInt(loanId), voterAddress as `0x${string}`]
+        : undefined,
+  });
+
+  return { hasVoted: data as boolean | undefined, error, isLoading };
+}
+
+/**
+ * Hook to get detailed information for multiple loans in a batch
+ * @param contractAddress The address of the LuminaFi contract
+ * @param loanIds Array of loan IDs to retrieve information for
+ */
+export function useGetLoanInfoBatch(
+  contractAddress: string,
+  loanIds: number[] | undefined,
+) {
+  const { data, error, isLoading } = useReadContract({
+    address: contractAddress as `0x${string}`,
+    abi: LUMINAFI_ABI,
+    functionName: 'getLoanInfoBatch',
+    args: loanIds ? [loanIds.map((id) => BigInt(id))] : undefined,
+  });
+
+  const loansInfo = data
+    ? (data as any[]).map((loan) => ({
+        id: Number(loan.id),
+        borrower: loan.borrower,
+        reason: loan.reason,
+        proof: loan.proof,
+        amountStablecoin: formatUnits(loan.amountStablecoin, 18),
+        termMonths: Number(loan.termMonths),
+        profitSharePercentage: Number(loan.profitSharePercentage),
+        monthlyPaymentAmount: formatUnits(loan.monthlyPaymentAmount, 18),
+        status: Number(loan.status) as LoanStatus,
+        votes: Number(loan.votes),
+        totalVoters: Number(loan.totalVoters),
+        startTimestamp: Number(loan.startTimestamp),
+        endTimestamp: Number(loan.endTimestamp),
+        paidAmount: formatUnits(loan.paidAmount, 18),
+        nextPaymentDue: Number(loan.nextPaymentDue),
+      }))
+    : undefined;
+
+  return { loansInfo, error, isLoading };
+}
+
+/**
+ * Hook to get loan IDs filtered by a specific status
+ * @param contractAddress The address of the LuminaFi contract
+ * @param status The loan status to filter by
+ */
+export function useGetLoanIdsByStatus(
+  contractAddress: string,
+  status: LoanStatus | undefined,
+) {
+  const { data, error, isLoading } = useReadContract({
+    address: contractAddress as `0x${string}`,
+    abi: LUMINAFI_ABI,
+    functionName: 'getLoanIdsByStatus',
+    args: status !== undefined ? [status] : undefined,
+  });
+
+  const loanIds = data ? (data as bigint[]).map((id) => Number(id)) : undefined;
+
+  return { loanIds, error, isLoading };
+}
+
+/**
+ * Hook to get borrower details for a specific loan
+ * @param contractAddress The address of the LuminaFi contract
+ * @param loanId The ID of the loan
+ */
+export function useGetLoanBorrowerDetails(
+  contractAddress: string,
+  loanId: number | undefined,
+) {
+  const { data, error, isLoading } = useReadContract({
+    address: contractAddress as `0x${string}`,
+    abi: LUMINAFI_ABI,
+    functionName: 'getLoanBorrowerDetails',
+    args: loanId !== undefined ? [BigInt(loanId)] : undefined,
+  });
+
+  const borrowerDetails = data
+    ? {
+        name: data[0] as string,
+        institutionName: data[1] as string,
+      }
+    : undefined;
+
+  return { borrowerDetails, error, isLoading };
+}

@@ -79,7 +79,7 @@ export interface InvestmentPoolInfo {
 }
 
 export const TESTNET_SMART_CONTRACT_ADDRESS =
-  '0x1691740FB729B0aE288E4d7Fa6F66d49bF9cd24d';
+  '0xe337eA390425bCf69C0a5BB797A0e08128999361';
 
 export const INVESTMENT_TOKEN_ADDRESS =
   '0xC2f2f9004B2F3fF1798AaD36bCC910F5c0A7bC4e';
@@ -1303,5 +1303,194 @@ export const LUMINAFI_ABI = [
     ],
     name: 'RoleRevoked',
     type: 'event',
+  },
+  {
+    inputs: [],
+    name: 'getLoanCount',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getMinVotesRequired',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_loanId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: '_voter',
+        type: 'address',
+      },
+    ],
+    name: 'hasVotedForLoan',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256[]',
+        name: '_loanIds',
+        type: 'uint256[]',
+      },
+    ],
+    name: 'getLoanInfoBatch',
+    outputs: [
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'id',
+            type: 'uint256',
+          },
+          {
+            internalType: 'address',
+            name: 'borrower',
+            type: 'address',
+          },
+          {
+            internalType: 'string',
+            name: 'reason',
+            type: 'string',
+          },
+          {
+            internalType: 'string',
+            name: 'proof',
+            type: 'string',
+          },
+          {
+            internalType: 'uint256',
+            name: 'amountStablecoin',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'termMonths',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'profitSharePercentage',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'monthlyPaymentAmount',
+            type: 'uint256',
+          },
+          {
+            internalType: 'enum LuminaFi.LoanStatus',
+            name: 'status',
+            type: 'uint8',
+          },
+          {
+            internalType: 'uint256',
+            name: 'votes',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'totalVoters',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'startTimestamp',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'endTimestamp',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'paidAmount',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint256',
+            name: 'nextPaymentDue',
+            type: 'uint256',
+          },
+        ],
+        internalType: 'struct LuminaFi.LoanInfo[]',
+        name: '',
+        type: 'tuple[]',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'enum LuminaFi.LoanStatus',
+        name: '_status',
+        type: 'uint8',
+      },
+    ],
+    name: 'getLoanIdsByStatus',
+    outputs: [
+      {
+        internalType: 'uint256[]',
+        name: '',
+        type: 'uint256[]',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: '_loanId',
+        type: 'uint256',
+      },
+    ],
+    name: 'getLoanBorrowerDetails',
+    outputs: [
+      {
+        internalType: 'string',
+        name: 'name',
+        type: 'string',
+      },
+      {
+        internalType: 'string',
+        name: 'institutionName',
+        type: 'string',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
